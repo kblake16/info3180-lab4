@@ -25,7 +25,7 @@ def home():
 @app.route('/about/')
 def about():
     """Render the website's about page."""
-    return render_template('about.html', name="Mary Jane")
+    return render_template('about.html', name="Kayla Blake")
 
 
 @app.route('/upload', methods=['POST', 'GET'])
@@ -39,25 +39,42 @@ def upload():
     if request.method == 'POST':
         # Get file data and save to your uploads folder
         formData = form.upload.data
-        fileName = secure_filename(formData.fileName)
-        formData.save = (os.path.join(app.config['UPLOAD_FOLDER'],fileName))
+        fileName = secure_filename(formData.filename)
+        formData.save(os.path.join(app.config['UPLOAD_FOLDER'],fileName))
         flash('File Saved', 'success')
         return redirect(url_for('home'))
 
-    return render_template('upload.html')
+    return render_template('upload.html',form = form)
 
+def get_uploaded_images():
+    photos = []
+    rootdir = os.getcwd()
+    for subdir, dirs, files in os.walk(rootdir + "/uploads"):
+        for file in files:
+            print(file)
+            photos.append(os.path.join(subdir,file))
+    return photos
+
+@app.route('/uploads/<filename>')
+def get_Image(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
+
+@app.route('/files')
+def files():
+    photo = get_uploaded_images()
+    return render_template('files.html',photo = photo)
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] != app.config['USERNAME'] or request.form['password'] != app.config['PASSWORD']:
+        if request.form['username'] != app.config['ADMIN_USERNAME'] or request.form['password'] != app.config['ADMIN_PASSWORD']:
             error = 'Invalid username or password'
         else:
             session['logged_in'] = True
-            
             flash('You were logged in', 'success')
             return redirect(url_for('upload'))
+        
     return render_template('login.html', error=error)
 
 
