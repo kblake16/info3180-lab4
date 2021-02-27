@@ -2,10 +2,9 @@
 
 {% block main %}
     <h1 class="page-header">View Images</h1>
+    <div class="layout">
         {% for img in photo%}
-            <div class="container">
-                <img src="{{ url_for('get_Image', filename = img)}}" />
-            </div>
+            <div><img src="{{ url_for('get_Image', filename = img)}}" /></div>
         {%endfor%}
-
+    </div>
 {% endblock %}
